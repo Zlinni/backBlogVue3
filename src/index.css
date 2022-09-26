@@ -1,0 +1,21 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+body {
+  margin: 0;
+}
+
+a {
+  color: black;
+  text-decoration: none;
+}
+
+
+@layer components {
+  .d-transistion {
+    @apply transition ease-in-out duration-300
+  }
+}
