@@ -18,6 +18,7 @@
     "vue-router": "^4.1.5"
   },
   "devDependencies": {
+    "@bytemd/vue-next": "^1.17.2",
     "@vitejs/plugin-vue": "^3.1.0",
     "autoprefixer": "^10.4.11",
     "naive-ui": "^2.33.3",

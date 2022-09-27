@@ -27,7 +27,7 @@
                     文章管理
                 </template>
             </SideBarLeftTab>
-            <SideBarLeftTab>
+            <SideBarLeftTab :clickEvent="toDraft">
                 <template #icon>
                     <PencilSquareIcon />
                 </template>
@@ -106,5 +106,8 @@ const { toggleDarkMode } = hookDarkmode;
 const { darkMode } = storeToRefs(hookDarkmode)
 const toArticle = ():void=>{
     router.push({path:'/article'})
+}
+const toRouterLink = (link:string):void=>{
+    router.push({path:'/'+link})
 }
 </script>

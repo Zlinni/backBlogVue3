@@ -6,3 +6,6 @@ declare module '*.vue' {
   export default component
 }
 declare module 'lodash-es'
+declare interface Window{
+  $message: MessageApiInjection
+}

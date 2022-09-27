@@ -2,13 +2,13 @@ import { AxiosPromise } from "axios";
 import request from "./request";
 
 //获取文章list
-interface GetListParams{
+export interface GetListParams{
     page?:number,
     pageSize?:number,
     postName?:string,
     categoryName?:string,
     tagName?:string,
-    range?:[number, number] | null
+    range?:string
 }
 //获取文章总览的接口
 export function getPost(params:GetListParams):AxiosPromise<Post.GetListRes>{
@@ -28,7 +28,7 @@ export function getCategories():AxiosPromise<Category.GetCategoriesRes>{
 // 获取标签的信息的接口
 export function getTags():AxiosPromise<Tag.GetTagsRes>{
   return request({
-    url: "/category/getCategories",
+    url: "/tag/getTags",
     method: "GET",
   });
 };

@@ -4,7 +4,7 @@ interface GetCategoryList {
 
 declare namespace Category {
   interface GetCategories {
-    data?: Category[];
+    data: Category[];
   }
   type Category = Tag.Tag;
   type GetCategoriesRes = Omit<Common.PaginUsual & GetCategories, "count">;

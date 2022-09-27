@@ -8,12 +8,10 @@ const lightThemeOverrides = {
   common: {
     primaryColor: '#58aef5',
     primaryColorHover:"#58aef5",
-    primaryColorPressed:"#58aef5"
-
+    primaryColorPressed:"#58aef5",
   },
   Button: {
-    textColorHover: '#2080f0',
-    textColorFocus: '#2080f0',
+    textColor: '#2080f0',
     borderHover:"1px solid #58aef5"
   },
   Pagination:{
@@ -24,17 +22,29 @@ const lightThemeOverrides = {
 
 const darkThemeOverrides = {
   common: {
-    primaryColor: '#FFFFFF'
+    primaryColor: '#58aef5',
+    primaryColorHover:"#58aef5",
+    primaryColorPressed:"#58aef5",
+  },
+  Button: {
+    textColor: '#2080f0',
+    borderHover:"1px solid #58aef5"
+  },
+  Pagination:{
+    textColorHover: '#000',
   }
   // ...
 }
 </script>
     
 <template>
+
   <!-- <n-config-provider :theme="darkTheme" :theme-overrides="theme === null ? darkThemeOverrides : darkThemeOverrides"> -->
   <n-config-provider :theme="darkMode?darkTheme:lightTheme"
     :theme-overrides="darkMode ? darkThemeOverrides : lightThemeOverrides">
-    <RouterView />
+    <n-message-provider>
+      <RouterView />
+    </n-message-provider>
   </n-config-provider>
 </template>
 
