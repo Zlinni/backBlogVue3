@@ -3,7 +3,7 @@
         <div class="px-5 border-b-2 border-gray-50 dark:border-dim-300 h-14 min-w-max flex items-center">
             <!-- <div class="text-black text-2xl font-semibold
         dark:text-white">文章管理</div> -->
-            <n-h1 prefix="bar" class="mb-0" align-text type="info" >
+            <n-h1 prefix="bar" class="mb-0" align-text type="info">
                 <n-text type="primary" class="text-black text-2xl font-semibold
         dark:text-white">
                     文章管理
@@ -25,7 +25,7 @@
                     <div class="text-lg dark:text-white">文章</div>
                 </div>
                 <div class="xs:col-span-6 md:col-span-3">
-                    <n-input type="text" placeholder="请输入内容" v-model="formValue.postName"/>
+                    <n-input type="text" placeholder="请输入内容" v-model="formValue.postName" />
                 </div>
                 <div class="xs:col-span-2 md:col-span-1 flex items-center pr-4 gap-2">
                     <n-icon size="20" class="dark:text-white">
@@ -34,7 +34,7 @@
                     <div class="text-lg dark:text-white">标签</div>
                 </div>
                 <div class="xs:col-span-6 md:col-span-3">
-                    <n-input type="text" placeholder="请输入内容" v-model="formValue.tagName"/>
+                    <n-input type="text" placeholder="请输入内容" v-model="formValue.tagName" />
                 </div>
             </div>
             <div class="grid grid-cols-8 items-center mb-2 xs:gap-2">
@@ -45,7 +45,7 @@
                     <div class="text-lg dark:text-white">目录</div>
                 </div>
                 <div class="xs:col-span-6 md:col-span-3">
-                    <n-input type="text" placeholder="请输入内容" v-model="formValue.categoryName"/>
+                    <n-input type="text" placeholder="请输入内容" v-model="formValue.categoryName" />
                 </div>
                 <div class="xs:col-span-2 md:col-span-1 flex items-center pr-4 gap-2">
                     <n-icon size="20" class="dark:text-white">
@@ -84,19 +84,19 @@ import { storeToRefs } from 'pinia';
 import { reactive, ref } from 'vue';
 import { useResize } from '../../store/useResize';
 let { expandSearch } = storeToRefs(useResize());
-interface FormValue{
-    postName:string,
-    categoryName:string,
-    tagName:string,
-    range:[number, number] 
+interface FormValue {
+    postName: string,
+    categoryName: string,
+    tagName: string,
+    range: [number, number]
 }
 const formValue = reactive<FormValue>({
-    postName:'',
-    categoryName:'',
-    tagName:'',
-    range:[1183135260000, Date.now()]
+    postName: '',
+    categoryName: '',
+    tagName: '',
+    range: [1183135260000, Date.now()]
 })
-const doSearch = ()=>{
-    
+const doSearch = () => {
+
 }
 </script>

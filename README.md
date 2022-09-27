@@ -58,3 +58,38 @@ darkMode
             </div>
       </div>
 ```
+
+# 时间转数字的操作
+naiveui提供的时间是转成时间戳的就很神奇，后面发现这样操作就ok了,这样的话后台对比是否在这个时间段内也很方便
+```javascript
++new Date('2012-09-03')
+```
+
+# mongoose 时间区间查询
+```javascript
+      $and: [{ date: { $gt: startTime } }, { date: { $lt: endTime } }]
+```
+注意还要把schema里面的date转化为Date格式
+
+转化的结果
+```javaScript
++new Date('2022-04-21 08:31:57')
+1650501117000
+//转后
++new Date('2022-04-21T00:31:57.000Z')
+1650501117000
+```
+
+注意在前端把这种字符串转化
+```javaScript
+new Date('2022-04-21T00:31:57.000Z').toLocaleString()
+```
+
+# ts定义window上面的变量类型
+在`*.d.ts`中声明
+```javaScript
+declare interface Window{
+  $message: MessageApiInjection
+}
+```
+

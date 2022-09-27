@@ -4,17 +4,18 @@
         <div>
             <div class="px-5 border-b-2 border-gray-50 dark:border-dim-300 h-14 min-w-max flex items-center">
                 <!-- <div class="text-black text-2xl font-semibold
-        dark:text-white">文章管理</div> -->
+            dark:text-white">文章管理</div> -->
                 <n-h1 prefix="bar" class="mb-0" align-text type="info">
                     <n-text type="primary" class="text-black text-2xl font-semibold
-        dark:text-white">
+            dark:text-white">
                         文章管理
                     </n-text>
                 </n-h1>
                 <div class="ml-auto flex gap-2">
                     <n-button type="primary" size="large" class="text-black dark:text-white">新建文章</n-button>
-                    <n-button type="default" size="large" class="text-black dark:text-white"
-                        @click="expandFn">{{expandSearch?'收起':'展开'}}</n-button>
+                    <n-button type="primary" size="large" class="text-black dark:text-white">导入</n-button>
+                    <n-button type="default" size="large" class="text-black dark:text-white" @click="expandFn">
+                        {{expandSearch?'收起':'展开'}}</n-button>
                 </div>
             </div>
             <!-- 展开折叠动画的一个小方案 -->
@@ -37,7 +38,8 @@
                         <div class="text-lg dark:text-white">标签</div>
                     </div>
                     <div class="xs:col-span-6 md:col-span-3">
-                        <n-input type="text" placeholder="请输入内容" v-model:value="formValue.tagName" clearable />
+                        <n-select placeholder="请输入内容" v-model:value="formValue.tagName" :options="tagOptions"
+                            clearable />
                     </div>
                 </div>
                 <div class="grid grid-cols-8 items-center mb-2 xs:gap-2">
@@ -48,7 +50,8 @@
                         <div class="text-lg dark:text-white">目录</div>
                     </div>
                     <div class="xs:col-span-6 md:col-span-3">
-                        <n-input type="text" placeholder="请输入内容" v-model:value="formValue.categoryName" :options="categoryOptions" clearable />
+                        <n-select placeholder="请输入内容" v-model:value="formValue.categoryName" :options="categoryOptions"
+                            clearable />
                     </div>
                     <div class="xs:col-span-2 md:col-span-1 flex items-center pr-4 gap-2">
                         <n-icon size="20" class="dark:text-white">
@@ -93,13 +96,15 @@
 
 <script lang="ts" setup>
 import { MagnifyingGlassIcon, ArrowPathIcon, BookOpenIcon, TagIcon, ListBulletIcon, ClockIcon } from '@heroicons/vue/24/outline/index'
-import { DataTableColumns, NButton, NTag } from 'naive-ui'
+import { DataTableColumns, NButton, NTag, useMessage } from 'naive-ui'
 import { storeToRefs } from 'pinia';
 import { reactive, h, ref } from 'vue';
-import { getCategories, getPost, getTags } from '../../api/article';
+import { getCategories, GetListParams, getPost, getTags } from '../../api/article';
 import { useResize } from '../../store/useResize';
 // import Search from '../Public/Search.vue'
 const rowKey = (row: Post.PostNoUrlToc) => row._id;
+window.$message = useMessage();
+// 表格数据
 const columns: DataTableColumns<Post.PostNoUrlToc> =
     [
         {
@@ -165,6 +170,9 @@ const columns: DataTableColumns<Post.PostNoUrlToc> =
         {
             title: '创建时间',
             key: 'date',
+            render(row) {
+                return new Date(row.date).toLocaleString()
+            },
             ellipsis: {
                 tooltip: true
             }
@@ -243,6 +251,7 @@ const formValue = reactive<FormValue>({
     tagName: '',
     range: null
 })
+
 const resetForm = () => {
     let key: keyof FormValue
     for (key in formValue) {
@@ -258,19 +267,21 @@ let loading = ref<boolean>(false);
 const apiGetPost = async (resetPage?: number, resetPageSize?: number) => {
     try {
         loading.value = true;
-        const params: Pick<Pagination, 'page' | 'pageSize'> & FormValue = {
+        const params: GetListParams = {
             page: resetPage || paginationReactive.page,
             pageSize: resetPageSize || paginationReactive.pageSize,
             ...formValue,
             //细节去除空格
-            postName:formValue.postName?.trim()
+            postName: formValue.postName?.trim(),
+            range: formValue.range?.toString()
         }
         const apiPost = await getPost(params);
         paginationReactive.pageCount = apiPost.data.totalPage;
         postData.value = apiPost.data.data
         loading.value = false;
-    } catch (error) {
-        console.log(error)
+    } catch (error: any) {
+        window.$message.warning(error.response.data.msg)
+        postData.value = []
         loading.value = false;
     }
 }
@@ -279,26 +290,52 @@ apiGetPost()
 const doSearch = (): void => {
     apiGetPost(1, 10)
 }
-type Options<T> = T extends never[]?[]: {
-    label:string,
-    value:string,
-    disabled:boolean
+interface Options {
+    label?: string,
+    value?: string,
+    disabled?: boolean
 }
-let categoryOptions:Options<[]> = [];
-let tagOptions:Options<[]>  = [];
+let categoryOptions = ref<Options[]>([]);
+let tagOptions = ref<Options[]>([]);
 // 控制展开收缩的function
-const expandFn = async()=>{
+const expandFn = async () => {
     // TODO 考虑是否需要返回data.data 
-    let {data:categoryOptionsData} = await getCategories()
-    console.log(categoryOptionsData)
+    expandSearch.value = !expandSearch.value;
+    // 做个缓存优化 但是问题也是有的 如果资源发生了改变local通知不到
+    if (localStorage.getItem('categoryOptionsData') && localStorage.getItem('tagOptionsData')) {
+        categoryOptions.value = JSON.parse(localStorage.getItem('categoryOptionsData') as string)
+        tagOptions.value = JSON.parse(localStorage.getItem('tagOptionsData') as string)
+    } else {
+        try {
+            let { data: categoryOptionsData } = await getCategories()
+            categoryOptions.value = categoryOptionsData.data.map((item) => {
+                return {
+                    label: item.name,
+                    value: item.name,
+                    disabled: false
+                }
+            })
+            localStorage.setItem('categoryOptionsData', JSON.stringify(categoryOptions.value))
+            let { data: tagOptionsData } = await getTags()
+            tagOptions.value = tagOptionsData.data.map((item) => {
+                return {
+                    label: item.name,
+                    value: item.name,
+                    disabled: false
+                }
+            })
+            localStorage.setItem('tagOptionsData', JSON.stringify(tagOptions.value))
+        } catch (error: any) {
+            window.$message.warning(error.response.data.msg)
+        }
+    }
     // for (const item of categoryOptionsData) {
-        
+
     // }
 
     // let {data:tagOptionsData} = await getTags()
     // tagOptions = tagOptionsData;
 
-    expandSearch.value=!expandSearch.value;
 }
 </script>
 
