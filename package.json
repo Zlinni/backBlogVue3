@@ -9,15 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bytemd/plugin-breaks": "^1.17.2",
+    "@bytemd/plugin-frontmatter": "^1.17.2",
     "@bytemd/plugin-gfm": "^1.17.2",
     "@bytemd/plugin-highlight": "^1.17.2",
+    "@bytemd/plugin-math": "^1.17.2",
     "@heroicons/vue": "^2.0.11",
     "@types/lodash-es": "^4.17.6",
     "axios": "^0.27.2",
     "bytemd": "^1.17.2",
     "juejin-markdown-themes": "^1.29.3",
     "lodash-es": "^4.17.21",
+    "node-sass": "^7.0.3",
     "pinia": "^2.0.22",
+    "scss": "^0.2.4",
     "vue": "^3.2.37",
     "vue-router": "^4.1.5"
   },
@@ -27,6 +32,7 @@
     "autoprefixer": "^10.4.11",
     "naive-ui": "^2.33.3",
     "postcss": "^8.4.16",
+    "sass": "^1.55.0",
     "tailwind-scrollbar": "^2.0.1",
     "tailwindcss": "^3.1.8",
     "unplugin-auto-import": "^0.11.2",
