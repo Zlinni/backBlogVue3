@@ -93,3 +93,13 @@ declare interface Window{
 }
 ```
 
+# 记录一个git问题
+在公司coding的时候 提交自己的git仓库代码 现在已经不能用密码了
+需要用access Token 
+在setting ->  Developer settings -> Personal access tokens
+中生成 
+特别注意 勾选所有的权限！！！
+
+最后 生成之后在电脑的凭据管理器中注入
+
+# bytemd

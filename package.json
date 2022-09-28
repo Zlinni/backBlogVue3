@@ -9,9 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bytemd/plugin-gfm": "^1.17.2",
+    "@bytemd/plugin-highlight": "^1.17.2",
     "@heroicons/vue": "^2.0.11",
     "@types/lodash-es": "^4.17.6",
     "axios": "^0.27.2",
+    "bytemd": "^1.17.2",
+    "juejin-markdown-themes": "^1.29.3",
     "lodash-es": "^4.17.21",
     "pinia": "^2.0.22",
     "vue": "^3.2.37",

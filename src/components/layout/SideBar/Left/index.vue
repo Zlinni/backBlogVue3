@@ -19,7 +19,7 @@
                     主页
                 </template>
             </SideBarLeftTab>
-            <SideBarLeftTab :clickEvent="toArticle">
+            <SideBarLeftTab :clickEvent="toRouterLink('article')">
                 <template #icon>
                     <BookOpenIcon />
                 </template>
@@ -27,7 +27,7 @@
                     文章管理
                 </template>
             </SideBarLeftTab>
-            <SideBarLeftTab :clickEvent="toDraft">
+            <SideBarLeftTab :clickEvent="toRouterLink('draft')">
                 <template #icon>
                     <PencilSquareIcon />
                 </template>
@@ -107,7 +107,9 @@ const { darkMode } = storeToRefs(hookDarkmode)
 const toArticle = ():void=>{
     router.push({path:'/article'})
 }
-const toRouterLink = (link:string):void=>{
-    router.push({path:'/'+link})
+const toRouterLink = (link:string):()=>void=>{
+    return function(){
+        router.push({path:'/'+link})
+    }
 }
 </script>
