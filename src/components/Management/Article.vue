@@ -99,11 +99,21 @@ import { MagnifyingGlassIcon, ArrowPathIcon, BookOpenIcon, TagIcon, ListBulletIc
 import { DataTableColumns, NButton, NTag, useMessage } from 'naive-ui'
 import { storeToRefs } from 'pinia';
 import { reactive, h, ref } from 'vue';
-import { getCategories, GetListParams, getPost, getTags } from '../../api/article';
+import { useRouter } from 'vue-router';
+import { getCategories, GetListParams, getPost, getTags, readPost } from '../../api/article';
 import { useResize } from '../../store/useResize';
 // import Search from '../Public/Search.vue'
 const rowKey = (row: Post.PostNoUrlToc) => row._id;
+const router = useRouter();
 window.$message = useMessage();
+interface Viewer {
+    open:boolean,
+    value:string
+}
+const viewer = reactive<Viewer>({
+    open:false,
+    value:''
+})
 // 表格数据
 const columns: DataTableColumns<Post.PostNoUrlToc> =
     [
@@ -189,7 +199,11 @@ const columns: DataTableColumns<Post.PostNoUrlToc> =
 
                             size: 'small',
                             class: "mr-2",
-                            onClick: () => { alert(row.intro) }
+                            onClick: async() => {
+                                debugger;
+                                //打开Viewer预览
+                                router.push({path:'/draft',query:{abbrlink:row.abbrlink}});
+                             }
                         },
                         { default: () => '修改' }
                     ),
