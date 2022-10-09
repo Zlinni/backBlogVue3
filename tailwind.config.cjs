@@ -33,6 +33,6 @@ module.exports = {
     scrollbar: ["dark"],
   },
   corePlugins: {
-    preflight: true, // 禁止tailwindcss的默认属性base，防止和ant design vue的样式产生冲突
+    preflight: false, // 禁止tailwindcss的默认属性base，防止和ant design vue的样式产生冲突
   },
 };

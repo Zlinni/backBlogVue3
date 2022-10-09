@@ -9,3 +9,6 @@ declare module 'lodash-es'
 declare interface Window{
   $message: MessageApiInjection
 }
+declare interface EventTarget{
+  innerText:string;
+}

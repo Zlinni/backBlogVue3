@@ -13,6 +13,8 @@ specifiers:
   autoprefixer: ^10.4.11
   axios: ^0.27.2
   bytemd: ^1.17.2
+  dayjs: ^1.11.5
+  default-passive-events: ^2.0.0
   juejin-markdown-themes: ^1.29.3
   lodash-es: ^4.17.21
   naive-ui: ^2.33.3
@@ -29,6 +31,7 @@ specifiers:
   vue: ^3.2.37
   vue-router: ^4.1.5
   vue-tsc: ^0.40.4
+  yaml: ^2.1.2
 
 dependencies:
   '@bytemd/plugin-breaks': 1.17.2_bytemd@1.17.2
@@ -40,6 +43,8 @@ dependencies:
   '@types/lodash-es': 4.17.6
   axios: 0.27.2
   bytemd: 1.17.2
+  dayjs: 1.11.5
+  default-passive-events: 2.0.0
   juejin-markdown-themes: 1.29.3
   lodash-es: 4.17.21
   node-sass: 7.0.3
@@ -47,6 +52,7 @@ dependencies:
   scss: 0.2.4
   vue: 3.2.39
   vue-router: 4.1.5_vue@3.2.39
+  yaml: 2.1.2
 
 devDependencies:
   '@bytemd/vue-next': 1.17.2_vue@3.2.39
@@ -980,6 +986,10 @@ packages:
     engines: {node: '>=0.11'}
     dev: true
 
+  /dayjs/1.11.5:
+    resolution: {integrity: sha512-CAdX5Q3YW3Gclyo5Vpqkgpj8fSdLQcRuzfX6mC6Phy0nfJ0eGYOeS7m4mt2plDWLAtA4TqTakvbboHvUxfe4iA==}
+    dev: false
+
   /debug/4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
     engines: {node: '>=6.0'}
@@ -1008,6 +1018,10 @@ packages:
     resolution: {integrity: sha512-O8x12RzrUF8xyVcY0KJowWsmaJxQbmy0/EtnNtHRpsOcT7dFk5W598coHqBVpmWo1oQQfsCqfCmkZN5DJrZVdg==}
     dependencies:
       character-entities: 2.0.2
+
+  /default-passive-events/2.0.0:
+    resolution: {integrity: sha512-eMtt76GpDVngZQ3ocgvRcNCklUMwID1PaNbCNxfpDXuiOXttSh0HzBbda1HU9SIUsDc02vb7g9+3I5tlqe/qMQ==}
+    dev: false
 
   /defined/1.0.0:
     resolution: {integrity: sha512-Y2caI5+ZwS5c3RiNDJ6u53VhQHv+hHKwhkI1iHvceKUHw9Df6EK2zRLfjejRgMuCuxK7PfSWIMwWecceVvThjQ==}
@@ -3930,6 +3944,11 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
     dev: true
+
+  /yaml/2.1.2:
+    resolution: {integrity: sha512-VSdf2/K3FqAetooKQv45Hcu6sA00aDgWZeGcG6V9IYJnVLTnb6988Tie79K5nx2vK7cEpf+yW8Oy+7iPAbdiHA==}
+    engines: {node: '>= 14'}
+    dev: false
 
   /yargs-parser/20.2.9:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}

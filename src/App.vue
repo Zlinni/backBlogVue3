@@ -7,14 +7,14 @@ const { darkMode } = storeToRefs(hookDarkmode)
 const lightThemeOverrides = {
   common: {
     primaryColor: '#58aef5',
-    primaryColorHover:"#58aef5",
-    primaryColorPressed:"#58aef5",
+    primaryColorHover: "#58aef5",
+    primaryColorPressed: "#58aef5",
   },
   Button: {
     textColor: '#2080f0',
-    borderHover:"1px solid #58aef5"
+    borderHover: "1px solid #58aef5"
   },
-  Pagination:{
+  Pagination: {
     textColorHover: '#000',
   }
   // ...
@@ -22,15 +22,15 @@ const lightThemeOverrides = {
 
 const darkThemeOverrides = {
   common: {
-    primaryColor: '#58aef5',
-    primaryColorHover:"#58aef5",
-    primaryColorPressed:"#58aef5",
+    primaryColor: '#323f48',
+    primaryColorHover: "#323f48",
+    primaryColorPressed: "#323f48",
   },
   Button: {
     textColor: '#2080f0',
-    borderHover:"1px solid #58aef5"
+    borderHover: "1px solid #323f48"
   },
-  Pagination:{
+  Pagination: {
     textColorHover: '#000',
   }
   // ...
@@ -38,13 +38,13 @@ const darkThemeOverrides = {
 </script>
     
 <template>
-
-  <!-- <n-config-provider :theme="darkTheme" :theme-overrides="theme === null ? darkThemeOverrides : darkThemeOverrides"> -->
   <n-config-provider :theme="darkMode?darkTheme:lightTheme"
     :theme-overrides="darkMode ? darkThemeOverrides : lightThemeOverrides">
-    <n-message-provider>
-      <RouterView />
-    </n-message-provider>
+    <n-dialog-provider>
+      <n-message-provider>
+        <RouterView />
+      </n-message-provider>
+    </n-dialog-provider>
   </n-config-provider>
 </template>
 

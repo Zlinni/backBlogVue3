@@ -25,7 +25,7 @@
                     <div class="text-lg dark:text-white">文章</div>
                 </div>
                 <div class="xs:col-span-6 md:col-span-3">
-                    <n-input type="text" placeholder="请输入内容" v-model="formValue.postName" />
+                    <n-input type="text" placeholder="请输入内容" v-model="formValue.title" />
                 </div>
                 <div class="xs:col-span-2 md:col-span-1 flex items-center pr-4 gap-2">
                     <n-icon size="20" class="dark:text-white">
@@ -34,7 +34,7 @@
                     <div class="text-lg dark:text-white">标签</div>
                 </div>
                 <div class="xs:col-span-6 md:col-span-3">
-                    <n-input type="text" placeholder="请输入内容" v-model="formValue.tagName" />
+                    <n-input type="text" placeholder="请输入内容" v-model="formValue.tags" />
                 </div>
             </div>
             <div class="grid grid-cols-8 items-center mb-2 xs:gap-2">
@@ -45,7 +45,7 @@
                     <div class="text-lg dark:text-white">目录</div>
                 </div>
                 <div class="xs:col-span-6 md:col-span-3">
-                    <n-input type="text" placeholder="请输入内容" v-model="formValue.categoryName" />
+                    <n-input type="text" placeholder="请输入内容" v-model="formValue.categories" />
                 </div>
                 <div class="xs:col-span-2 md:col-span-1 flex items-center pr-4 gap-2">
                     <n-icon size="20" class="dark:text-white">
@@ -54,7 +54,7 @@
                     <div class="text-lg dark:text-white">时间</div>
                 </div>
                 <div class="xs:col-span-6 md:col-span-3">
-                    <n-date-picker v-model:value="formValue.range" type="daterange" clearable />
+                    <n-date-picker v-model:value="formValue.date" type="daterange" clearable />
                 </div>
             </div>
             <div class="flex">
@@ -85,16 +85,16 @@ import { reactive, ref } from 'vue';
 import { useResize } from '../../store/useResize';
 let { expandSearch } = storeToRefs(useResize());
 interface FormValue {
-    postName: string,
-    categoryName: string,
-    tagName: string,
-    range: [number, number]
+    title: string,
+    categories: string,
+    tags: string,
+    date: [number, number]
 }
 const formValue = reactive<FormValue>({
-    postName: '',
-    categoryName: '',
-    tagName: '',
-    range: [1183135260000, Date.now()]
+    title: '',
+    categories: '',
+    tags: '',
+    date: [1183135260000, Date.now()]
 })
 const doSearch = () => {
 

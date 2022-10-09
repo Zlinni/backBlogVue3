@@ -1,5 +1,5 @@
 <template>
-    <div class="xs:flex sm:hidden min-w-full h-12 px-2 items-center border-b-2 border-gray-200 dark:border-dim-300">
+    <div class="xs:flex sm:hidden min-w-full h-12 items-center border-b-2 border-gray-200 dark:border-dim-300">
         <div class="p-2 my-2 hover:bg-red-50 rounded-full w-min
             dark:hover:bg-white/20 d-transistion
         ">

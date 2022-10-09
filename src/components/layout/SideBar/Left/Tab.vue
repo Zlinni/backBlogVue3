@@ -1,5 +1,5 @@
 <template>
-    <div @click="clickEvent" class="d-transistion flex items-center p-3 rounded-full hover:bg-gray-200
+    <div @click="clickEvent" class="cursor-pointer d-transistion flex items-center p-3 rounded-full hover:bg-gray-200
         dark:hover:bg-dim-200 dark:text-white
     ">
         <div class="w-6 h-6 d-transistion text-dark">

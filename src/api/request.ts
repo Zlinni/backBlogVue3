@@ -16,8 +16,13 @@ function request(axiosConfig: AxiosRequestConfig) {
   //响应拦截器全局
   service.interceptors.response.use(
     (res) => {
-      if(res.data.code!==0){
-        throw new Error(res.data.msg)
+      if (res.data.code && res.data.code !== 0) {
+        throw new Error(res.data.msg);
+      }
+      if (!res.data.code && res.data.code !== 0) {
+        const resType = Object.prototype.toString.call(res.data);
+        const isBlob = resType === "[object Blob]";
+        if (isBlob || resType === "[object String]") return res;
       }
       return res.data;
     },

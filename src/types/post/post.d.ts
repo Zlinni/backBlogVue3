@@ -5,14 +5,14 @@ declare namespace Post {
     tags: Tag.Tag[];
     categories: Category.Category[];
     cover: string;
-    abbrlink: number;
+    abbrlink: number | string;
     date: string;
     top?: number | null;
-    wordCount: number;
-    url: string;
-    toc: string;
-    updateTime: string;
-    intro: string;
+    wordCount?: number;
+    url?: string;
+    toc?: string;
+    updateTime?: string;
+    intro?: string;
   }
 
   type PostNoUrlToc = Omit<Post, "url" | "toc">;
