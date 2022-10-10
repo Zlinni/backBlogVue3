@@ -68,7 +68,7 @@
 <script lang="ts" setup>
 import { BookOpenIcon, TagIcon, ListBulletIcon, ClockIcon,LinkIcon,PhotoIcon } from '@heroicons/vue/24/outline/index'
 import { onMounted, reactive, ref } from 'vue';
-import { stringify } from 'yaml';
+// import { stringify } from 'yaml';
 import { getCategories, getTags } from '../../../api/article';
 import { isEmptyArray } from '../../../utils/Array';
 // 挂载后做的事
@@ -94,8 +94,9 @@ const sendData = async () => {
     if(isEmptyArray(formValue.tags)){
         delete formValue.tags
     }
-    const text = stringify(formValue)
-    emits('SaveData', text, formValue)
+    // const text = stringify(formValue)
+    // emits('SaveData', text, formValue)
+    emits('SaveData', formValue)
 }
 // 定义Props
 interface Props {

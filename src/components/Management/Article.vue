@@ -110,6 +110,11 @@
                     </n-button>
                     <n-button type="primary" size="large" class="text-black dark:text-white" @click="goBack">
                         返回</n-button>
+                    <n-dropdown :options="dropdownOptions" placement="bottom-start" trigger="click">
+                        <n-button type="primary" size="large" class="text-black dark:text-white">
+                            操作</n-button>
+                    </n-dropdown>
+                    <n-button @click="testModify"></n-button>
                 </div>
             </div>
             <MdEditor :textValue="textValue" @setMdText="setMdText"></MdEditor>
@@ -126,9 +131,13 @@ import ArticleDelete from '../Management/Article/Delete.vue'
 import { addPost, deletePost, getCategories, GetListParams, getPost, getTags, modifyPost, outputPost, readPost } from '../../api/article';
 import { useResize } from '../../store/useResize';
 // TODO 好像太大了
-import { parse } from 'yaml';
+import { parse, stringify } from 'yaml';
 import dayjs from 'dayjs';
 import SaveMenuVue from './Article/SaveMenu.vue';
+import UploadVue from './Article/Upload.vue';
+const testModify = () => {
+    console.log(editor.isModify);
+}
 // 定义全局的消息提醒
 window.$message = useMessage();
 // 定义全局的弹出框
@@ -280,41 +289,7 @@ const columns: DataTableColumns<Post.PostNoUrlToc> =
                             class: "mr-2",
                             quaternary: true,
                             onClick: async () => {
-                                const _id = row._id
-                                if (typeof _id === 'string') {
-                                    try {
-                                        loading.value = true;
-                                        // 写个踩坑记录好了
-                                        // 获取到后端给来的数据 这里axios封装会踩坑
-                                        const res = await outputPost({ _id })
-                                        // 设置blobType
-                                        const blobType = 'application/force-download'
-                                        // 新建blob对象传入转换的数据
-                                        const blobs = new Blob([res.data], { type: blobType })
-                                        // 新建a标签
-                                        const archor = document.createElement('a');
-                                        // 创建a链接
-                                        const href = window.URL.createObjectURL(blobs)
-                                        // 解析content-disposition头 获取其中的已经编码的文件名
-                                        const encodeFileName = res.headers['content-disposition'].replace(/[\s\S]+'([\s\S]+)/, (p0, p1) => p1);
-                                        // 把文件名解码
-                                        const fileName = decodeURIComponent(encodeFileName);
-                                        // 设置a标签的href
-                                        archor.setAttribute('href', href)
-                                        // 设置文件名
-                                        archor.setAttribute('download', fileName)//关键点4
-                                        // 触发
-                                        archor.click();
-                                        // 释放掉href
-                                        window.URL.revokeObjectURL(href);
-                                        loading.value = false;
-                                        window.$message.success('下载成功')
-                                    } catch (error: any) {
-                                        // const errorMsg = error.response?.data?.msg ?? error
-                                        // window.$message.warning(errorMsg)
-                                        console.log(error);
-                                    }
-                                }
+                                outputPostFn(row._id)
                             }
                         },
                         { default: () => '导出' }
@@ -472,6 +447,8 @@ const setMdText = (val: any): void => {
 }
 //添加新文章
 const newPost = (): void => {
+    //重置id
+    editor._id = '';
     //打开编辑器 打开状态栏
     textTitle.value = '请输入文章标题';
     textValue.value = `---
@@ -491,21 +468,34 @@ date: ${dayjs().format('YYYY-MM-DD HH:mm:ss')}
 const importPost = () => {
     // 导入是解析文本 相当于上传了一个文章
     // TODO
-
+    dialog.info({
+        title: '导入文章',
+        content: () => {
+            return [
+                h(UploadVue)
+            ]
+        },
+        positiveText: '关闭',
+        onPositiveClick: () => {
+            // goBack();
+            doSearch()
+        }
+    })
 };
 
 //设置文章标题(最顶层) ts技巧
 const setTitle = (e: Event) => {
     textTitle.value = (e.target as EventTarget)?.innerText;
 }
+//yaml转化正则
+const yamlReg = /^(---)([\s\S]+?)(\1)$/gm;
 //保存文章之前做的事情
 const beforeSaveArticle = async () => {
     try {
         // TODO loading
         // setting是正则匹配了---之间的内容
         // setting需要用yaml转换为我们需要的对象数组
-        const reg = /^(---)([\s\S]+?)(\1)$/gm;
-        const yamlText = reg.exec(textValue.value)?.[2] || ''
+        const yamlText = yamlReg.exec(textValue.value)?.[2] || ''
         const setting = parse(yamlText)
         // 设置对话框
         dialog.info({
@@ -513,46 +503,8 @@ const beforeSaveArticle = async () => {
             content: () => {
                 return [
                     h(SaveMenuVue, {
-                        async onSaveData(data: string, formValue: any) {
-                            // 正则替换掉---中间内容
-                            textValue.value = textValue.value.replace(reg, (p0, p1) => {
-                                return p1 + '\n' + data + p1
-                            })
-                            // 设置顶层文章标题
-                            textTitle.value = formValue.title;
-                            // 添加文章
-                            if (editor.isAdd) {
-                                try {
-                                    loading.value = true;
-                                    await addPost({
-                                        textValue: textValue.value,
-                                        textTitle: formValue.title,
-                                        categories: formValue?.categories?.toString() ?? ''
-                                    })
-                                    loading.value = false;
-                                    window.$message.success('添加成功')
-                                } catch (error: any) {
-                                    console.log(error);
-                                    window.$message.warning(error.response?.data.msg) || window.$message.warning(error)
-                                }
-                            } else {
-                                // 修改文章
-                                try {
-                                    loading.value = true;
-                                    await modifyPost({
-                                        _id: editor._id,
-                                        textValue: textValue.value,
-                                        textTitle: formValue.title,
-                                        categories: formValue?.categories?.toString() ?? ''
-                                    })
-                                    loading.value = false;
-                                    window.$message.success('修改成功')
-                                    editor._id = '';
-                                } catch (error: any) {
-                                    console.log(error);
-                                    window.$message.warning(error.response?.data.msg) || window.$message.warning(error)
-                                }
-                            }
+                        async onSaveData(formValue: any) {
+                            saveData(formValue)
                         },
                         // props数据
                         ...setting
@@ -583,6 +535,141 @@ const deletePostFn = async (_id: string) => {
         window.$message.warning(error.response.data.msg)
     }
 }
+// 导出文章
+const outputPostFn = async (_id: string) => {
+    if (typeof _id === 'string') {
+        try {
+            loading.value = true;
+            // 写个踩坑记录好了
+            // 获取到后端给来的数据 这里axios封装会踩坑
+            const res = await outputPost({ _id })
+            // 设置blobType
+            const blobType = 'application/force-download'
+            // 新建blob对象传入转换的数据
+            const blobs = new Blob([res.data], { type: blobType })
+            // 新建a标签
+            const archor = document.createElement('a');
+            // 创建a链接
+            const href = window.URL.createObjectURL(blobs)
+            // 解析content-disposition头 获取其中的已经编码的文件名
+            const encodeFileName = res.headers['content-disposition'].replace(/[\s\S]+'([\s\S]+)/, (p0, p1) => p1);
+            // 把文件名解码
+            const fileName = decodeURIComponent(encodeFileName);
+            // 设置a标签的href
+            archor.setAttribute('href', href)
+            // 设置文件名
+            archor.setAttribute('download', fileName)//关键点4
+            // 触发
+            archor.click();
+            // 释放掉href
+            window.URL.revokeObjectURL(href);
+            loading.value = false;
+            window.$message.success('下载成功')
+        } catch (error: any) {
+            const errorMsg = error.response?.data?.msg ?? error
+            window.$message.warning(errorMsg)
+        }
+    }
+}
+//是否禁止下拉
+// let shouldShowDelete = computed<boolean>(() => {
+//     console.log(!editor.isModify,'--------')
+//     return !editor.isModify
+// })
+
+//操作下拉选项
+const dropdownOptions = reactive([
+    {
+        label: '重置',
+        key: 'reset',
+        props: {
+            onClick: () => {
+                textValue.value = '';
+            }
+        }
+    },
+    {
+        label: '导入文章',
+        key: 'output',
+        props: {
+            onClick: () => {
+                // dialog.info({
+
+                // })
+            }
+        }
+    },
+    {
+        label: '导出文章',
+        key: 'output',
+        props: {
+            // 两个方案
+            // 1. 直接导出当前文章，不保存到后台(√)
+            // 2. 先保存后调用导出功能，但这样就会先弹出保存提示框，然后再导出 
+            onClick: () => {
+                let link = document.createElement('a')
+                link.download = `${textTitle.value}.md`
+                link.href = 'data:text/plain,' + textValue.value
+                link.click()
+            }
+        }
+    },
+    {
+        label: '删除文章',
+        key: 'delete',
+        props: {
+            onClick: () => {
+                deletePostFn(editor._id);
+                goBack();
+                doSearch();
+            },
+        },
+        // disabled: shouldShowDelete.value
+    }
+])
+//保存data 抽出来先后面说不定有用到
+const saveData = async (formValue: any) => {
+    const yamlForm = stringify(formValue);
+    // 正则替换掉---中间内容
+    textValue.value = textValue.value.replace(yamlReg, (p0, p1) => {
+        return p1 + '\n' + yamlForm + p1
+    })
+    // 设置顶层文章标题
+    textTitle.value = formValue.title;
+    // 添加文章
+    if (editor.isAdd) {
+        try {
+            loading.value = true;
+            await addPost({
+                textValue: textValue.value,
+                textTitle: formValue.title,
+                categories: formValue?.categories?.toString() ?? ''
+            })
+            loading.value = false;
+            window.$message.success('添加成功')
+        } catch (error: any) {
+            console.log(error);
+            window.$message.warning(error.response?.data.msg) || window.$message.warning(error)
+        }
+    } else {
+        // 修改文章
+        try {
+            loading.value = true;
+            await modifyPost({
+                _id: editor._id,
+                textValue: textValue.value,
+                textTitle: formValue.title,
+                categories: formValue?.categories?.toString() ?? ''
+            })
+            loading.value = false;
+            window.$message.success('修改成功')
+            editor._id = '';
+        } catch (error: any) {
+            console.log(error);
+            window.$message.warning(error.response?.data.msg) || window.$message.warning(error)
+        }
+    }
+};
 </script>
 
 <style scoped>

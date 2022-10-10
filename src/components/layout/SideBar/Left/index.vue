@@ -35,12 +35,12 @@
                     草稿管理
                 </template>
             </SideBarLeftTab>
-            <SideBarLeftTab>
+            <SideBarLeftTab :clickEvent="toRouterLink('category')">
                 <template #icon>
                     <InboxIcon />
                 </template>
                 <template #name>
-                    评论管理
+                    目录管理
                 </template>
             </SideBarLeftTab>
             <SideBarLeftTab>

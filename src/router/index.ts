@@ -16,6 +16,11 @@ const routes: Array<RouteRecordRaw> = [
         path:"/draft",
         name:"Draft",
         component:()=>import("../components/Management/Draft.vue")
+      },
+      {
+        path:"/category",
+        name:"Category",
+        component:()=>import("../components/Management/Category.vue")
       }
     ]
   },

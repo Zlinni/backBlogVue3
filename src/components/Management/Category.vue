@@ -6,13 +6,11 @@
                     <n-h1 prefix="bar" class="mb-0" align-text type="info">
                         <n-text type="primary" class="text-black text-2xl font-semibold
                 dark:text-white">
-                            草稿管理
+                            目录管理
                         </n-text>
                     </n-h1>
                     <div class="ml-auto flex gap-2">
-                        <n-button type="primary" size="large" class="text-black dark:text-white" @click="newPost">新建草稿
-                        </n-button>
-                        <n-button type="primary" size="large" class="text-black dark:text-white" @click="importPost">导入
+                        <n-button type="primary" size="large" class="text-black dark:text-white" @click="newPost">新建目录
                         </n-button>
                         <n-button type="default" size="large" class="text-black dark:text-white" @click="expandFn">
                             {{expandSearch?'收起':'展开'}}</n-button>
@@ -26,46 +24,12 @@
                             <n-icon size="20" class="dark:text-white">
                                 <BookOpenIcon />
                             </n-icon>
-                            <div class="text-lg dark:text-white">文章</div>
-                        </div>
-                        <div class="xs:col-span-7 md:col-span-3 ml-8">
-                            <n-input type="text" placeholder="请输入内容" v-model:value="formValue.title" clearable />
-                        </div>
-                        <div class="xs:col-span-1 md:col-span-1 flex items-center ml-auto min-w-max pr-4 gap-2">
-                            <n-icon size="20" class="dark:text-white">
-                                <TagIcon />
-                            </n-icon>
-                            <div class="text-lg dark:text-white">标签</div>
-                        </div>
-                        <div class="xs:col-span-7 md:col-span-3 ml-8">
-                            <n-select placeholder="请输入内容" v-model:value="formValue.tags" :options="tagOptions"
-                                clearable />
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-8 items-center mb-2 xs:gap-2">
-                        <div class="xs:col-span-1 md:col-span-1 flex items-center ml-auto min-w-max pr-4 gap-2">
-                            <n-icon size="20" class="dark:text-white">
-                                <ListBulletIcon />
-                            </n-icon>
                             <div class="text-lg dark:text-white">目录</div>
                         </div>
-                        <div class="xs:col-span-7 md:col-span-3 ml-8">
-                            <n-select placeholder="请输入内容" v-model:value="formValue.categories"
-                                :options="categoryOptions" clearable />
+                        <div class="xs:col-span-7 md:col-span-auto ml-8">
+                            <n-input type="text" placeholder="请输入内容" v-model:value="formValue.searchText" clearable />
                         </div>
-                        <div class="xs:col-span-1 md:col-span-1 flex items-center ml-auto min-w-max pr-4 gap-2">
-                            <n-icon size="20" class="dark:text-white">
-                                <ClockIcon />
-                            </n-icon>
-                            <div class="text-lg dark:text-white">时间</div>
-                        </div>
-                        <div class="xs:col-span-7 md:col-span-3 ml-8">
-                            <n-date-picker v-model:value="formValue.date" type="daterange" clearable format="yyyy/MM/dd"
-                                start-placeholder="开始时间" end-placeholder="结束时间" />
-                        </div>
-                    </div>
-                    <div class="flex">
-                        <div class="flex gap-2 ml-auto">
+                        <div class="flex gap-2 md:col-span-auto">
                             <n-button type="primary" class="text-black dark:text-white" @click="doSearch">
                                 <template #icon>
                                     <MagnifyingGlassIcon />
@@ -80,11 +44,12 @@
                             </n-button>
                         </div>
                     </div>
+
                 </div>
             </div>
             <!-- 这个组件带了分页器，需要设置row-key 异步的时候需要设置remote -->
             <n-data-table class="mb-2" :min-height="300" :max-height="calHeightTable" striped :columns="columns"
-                :data="postData" size="large" :row-key="rowKey" :loading="loading" remote />
+                :data="categoryData" size="large" :row-key="rowKey" :loading="loading" remote />
             <div class="ml-auto w-max">
                 <n-pagination v-model:page="paginationReactive.page" v-model:page-size="paginationReactive.pageSize"
                     :page-count="paginationReactive.pageCount" :show-size-picker="activePagin"
@@ -106,8 +71,6 @@
                     <n-button type="primary" size="large" class="text-black dark:text-white" @click="beforeSaveArticle">
                         保存
                     </n-button>
-                    <n-button type="primary" size="large" class="text-black dark:text-white" @click="goBack">
-                        返回</n-button>
                     <n-dropdown :options="dropdownOptions" placement="bottom-start" trigger="click">
                         <n-button type="primary" size="large" class="text-black dark:text-white">
                             操作</n-button>
@@ -122,11 +85,12 @@
 
 <script lang="ts" setup>
 import { MagnifyingGlassIcon, ArrowPathIcon, BookOpenIcon, TagIcon, ListBulletIcon, ClockIcon } from '@heroicons/vue/24/outline/index'
-import { DataTableColumns, NButton, NTag, NTooltip, useDialog, useMessage } from 'naive-ui'
+import { DataTableColumns, NButton, NTag, useDialog, useMessage } from 'naive-ui'
 import { storeToRefs } from 'pinia';
 import { reactive, h, ref, computed, ComputedRef, onMounted } from 'vue';
 import ArticleDelete from '../Management/Article/Delete.vue'
-import { addPost, deletePost, getCategories, GetListParams, getPost, getTags, modifyPost, outputPost, readPost } from '../../api/article';
+import { addPost, deletePost, getTags, modifyPost, outputPost, readPost } from '../../api/article';
+import { getCategories, GetCategoriesParams } from '../../api/categories';
 import { useResize } from '../../store/useResize';
 // TODO 好像太大了
 import { parse, stringify } from 'yaml';
@@ -170,73 +134,55 @@ let loading = ref<boolean>(false);
 // 动态表格高度 展开搜索 动态分页器显示
 let { calHeightTable, expandSearch, activePagin } = storeToRefs(useResize())
 // 表格行数据,标题操作等
-const columns: DataTableColumns<Post.PostNoUrlToc> =
+const columns: DataTableColumns<Category.Category> =
     [
         {
             type: 'selection'
         },
         {
             title: '标题',
-            key: 'title',
+            key: 'name',
             ellipsis: {
                 tooltip: true
             }
         },
         {
-            title: '标签',
-            key: 'tags',
+            title: '颜色',
+            key: 'color',
             render(row) {
-                const tags = row.tags.map((tagKey) => {
-                    return h(
+                return [
+                    h(
                         NTag,
                         {
                             style: {
-                                marginRight: '6px'
+                                color: row.color
                             },
                             type: 'info',
                             bordered: false
                         },
                         {
-                            default: () => tagKey.name
+                            default: () => row.color
                         }
                     )
-                })
-                return tags
+                ]
             },
             ellipsis: {
                 tooltip: true
             }
         },
         {
-            title: '目录',
-            key: 'categories',
-            render(row) {
-                const categories = row.categories.map((categoriesKey) => {
-                    return h(
-                        NTag,
-                        {
-                            style: {
-                                marginRight: '6px'
-                            },
-                            type: 'info',
-                            bordered: false
-                        },
-                        {
-                            default: () => categoriesKey.name
-                        }
-                    )
-                })
-                return categories
-            },
+            title: '被引用数',
+            key: 'count',
             ellipsis: {
                 tooltip: true
             }
         },
         {
             title: '创建时间',
-            key: 'date',
+            key: 'createTime',
             render(row) {
-                return new Date(row.date).toLocaleString()
+                // return new Date(row.createTime).toLocaleString()
+                return row.createTime
             },
             ellipsis: {
                 tooltip: true
@@ -280,18 +226,6 @@ const columns: DataTableColumns<Post.PostNoUrlToc> =
                         }
                     }
                     ),
-                    h(
-                        NButton,
-                        {
-                            size: 'small',
-                            class: "mr-2",
-                            quaternary: true,
-                            onClick: async () => {
-                                outputPostFn(row._id)
-                            }
-                        },
-                        { default: () => '导出' }
-                    ),
                 ]
                 return actions;
             },
@@ -300,8 +234,8 @@ const columns: DataTableColumns<Post.PostNoUrlToc> =
             }
         },
     ]
-// 文章数据
-let postData = ref<Post.PostNoUrlToc[]>([])
+// 目录数据
+let categoryData = ref<Category.Category[]>([])
 interface Pagination {
     page: number,
     pageSize: number,
@@ -320,25 +254,19 @@ const paginationReactive = reactive<Pagination>({
     pageCount: 12,
     onChange: (page: number) => {
         paginationReactive.page = page
-        apiGetPost()
+        apiGetCategory()
     },
     onUpdatePageSize: (pageSize: number) => {
         paginationReactive.pageSize = pageSize
         paginationReactive.page = 1
-        apiGetPost()
+        apiGetCategory()
     }
 })
 interface FormValue {
-    title?: string,
-    categories?: string,
-    tags?: string,
-    date?: [number, number] | null
+    searchText: string,
 }
 const formValue = reactive<FormValue>({
-    title: '',
-    categories: '',
-    tags: '',
-    date: null
+    searchText: ''
 })
 onMounted(() => {
     document.addEventListener('visibilitychange', function () {
@@ -357,46 +285,40 @@ onMounted(() => {
 const resetForm = () => {
     let key: keyof FormValue
     for (key in formValue) {
-        if (key !== 'date') {
-            formValue[key] = ''
-        } else {
-            formValue[key] = null
-        }
+        formValue[key] = ''
     }
     doSearch()
 }
-// 回到文章管理
-const goBack = (): void => {
-    editor.isAdd = false
-    editor.isModify = false
-}
-const apiGetPost = async () => {
+// // 回到文章管理
+// const goBack = (): void => {
+//     editor.isAdd = false
+//     editor.isModify = false
+// }
+const apiGetCategory = async () => {
     try {
         loading.value = true;
-        const params: GetListParams = {
+        const params: GetCategoriesParams = {
             page: paginationReactive.page,
             pageSize: paginationReactive.pageSize,
-            ...formValue,
             //细节去除空格
-            title: formValue.title?.trim(),
-            date: formValue.date?.toString()
+            searchText: formValue.searchText?.trim(),
         }
-        const apiPost = await getPost(params);
-        paginationReactive.pageCount = apiPost.data.totalPage;
-        postData.value = apiPost.data.data
+        const apiCategory = await getCategories(params);
+        paginationReactive.pageCount = apiCategory.data.totalPage;
+        categoryData.value = apiCategory.data.data
         loading.value = false;
     } catch (error: any) {
         window.$message.warning(error.response.data.msg)
-        postData.value = []
+        categoryData.value = []
         loading.value = false;
     }
 }
-apiGetPost()
+apiGetCategory()
 //细节重置搜索
 const doSearch = (): void => {
     paginationReactive.page = 1;
     paginationReactive.pageSize = 10
-    apiGetPost()
+    apiGetCategory()
 }
 interface Options {
     label?: string,
@@ -511,7 +433,6 @@ const beforeSaveArticle = async () => {
             },
             positiveText: '关闭',
             onPositiveClick: () => {
-                goBack();
                 doSearch()
             }
         })
@@ -618,7 +539,6 @@ const dropdownOptions = reactive([
         props: {
             onClick: () => {
                 deletePostFn(editor._id);
-                goBack();
                 doSearch();
             },
         },
