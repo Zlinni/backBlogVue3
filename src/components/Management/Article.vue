@@ -108,13 +108,12 @@
                     <n-button type="primary" size="large" class="text-black dark:text-white" @click="beforeSaveArticle">
                         保存
                     </n-button>
-                    <n-button type="primary" size="large" class="text-black dark:text-white" @click="goBack">
-                        返回</n-button>
                     <n-dropdown :options="dropdownOptions" placement="bottom-start" trigger="click">
                         <n-button type="primary" size="large" class="text-black dark:text-white">
                             操作</n-button>
                     </n-dropdown>
-                    <n-button @click="testModify"></n-button>
+                    <n-button type="primary" size="large" class="text-black dark:text-white" @click="goBack">
+                        返回</n-button>
                 </div>
             </div>
             <MdEditor :textValue="textValue" @setMdText="setMdText"></MdEditor>
@@ -135,9 +134,6 @@ import { parse, stringify } from 'yaml';
 import dayjs from 'dayjs';
 import SaveMenuVue from './Article/SaveMenu.vue';
 import UploadVue from './Article/Upload.vue';
-const testModify = () => {
-    console.log(editor.isModify);
-}
 // 定义全局的消息提醒
 window.$message = useMessage();
 // 定义全局的弹出框

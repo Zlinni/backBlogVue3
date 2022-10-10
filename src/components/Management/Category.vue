@@ -1,85 +1,60 @@
 <template>
     <div class="h-screen">
-        <template v-if="!isEditor">
-            <div>
-                <div class="pl-5 border-b-2 border-gray-50 dark:border-dim-300 h-14 min-w-max flex items-center">
-                    <n-h1 prefix="bar" class="mb-0" align-text type="info">
-                        <n-text type="primary" class="text-black text-2xl font-semibold
-                dark:text-white">
-                            目录管理
-                        </n-text>
-                    </n-h1>
-                    <div class="ml-auto flex gap-2">
-                        <n-button type="primary" size="large" class="text-black dark:text-white" @click="newPost">新建目录
-                        </n-button>
-                        <n-button type="default" size="large" class="text-black dark:text-white" @click="expandFn">
-                            {{expandSearch?'收起':'展开'}}</n-button>
-                    </div>
-                </div>
-                <!-- 展开折叠动画的一个小方案 -->
-                <div class="overflow-hidden opacity-100 transition-all h-full p-5"
-                    :class="{'opacity-0 h-0 p-0':!expandSearch}">
-                    <div class="grid grid-cols-8 items-center mb-2 xs:gap-2">
-                        <div class="xs:col-span-1 md:col-span-1 flex items-center ml-auto min-w-max pr-4 gap-2">
-                            <n-icon size="20" class="dark:text-white">
-                                <BookOpenIcon />
-                            </n-icon>
-                            <div class="text-lg dark:text-white">目录</div>
-                        </div>
-                        <div class="xs:col-span-7 md:col-span-auto ml-8">
-                            <n-input type="text" placeholder="请输入内容" v-model:value="formValue.searchText" clearable />
-                        </div>
-                        <div class="flex gap-2 md:col-span-auto">
-                            <n-button type="primary" class="text-black dark:text-white" @click="doSearch">
-                                <template #icon>
-                                    <MagnifyingGlassIcon />
-                                </template>
-                                查询
-                            </n-button>
-                            <n-button type="default" class="text-black dark:text-white" @click="resetForm">
-                                <template #icon>
-                                    <ArrowPathIcon />
-                                </template>
-                                重置
-                            </n-button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            <!-- 这个组件带了分页器，需要设置row-key 异步的时候需要设置remote -->
-            <n-data-table class="mb-2" :min-height="300" :max-height="calHeightTable" striped :columns="columns"
-                :data="categoryData" size="large" :row-key="rowKey" :loading="loading" remote />
-            <div class="ml-auto w-max">
-                <n-pagination v-model:page="paginationReactive.page" v-model:page-size="paginationReactive.pageSize"
-                    :page-count="paginationReactive.pageCount" :show-size-picker="activePagin"
-                    :page-sizes="[10, 20, 30, 40]" :on-update:page="paginationReactive.onChange"
-                    :on-update:page-size="paginationReactive.onUpdatePageSize" size="large" />
-            </div>
-        </template>
-        <template v-else>
+        <div>
             <div class="pl-5 border-b-2 border-gray-50 dark:border-dim-300 h-14 min-w-max flex items-center">
-                <!-- <div class="text-black text-2xl font-semibold
-                dark:text-white">文章管理</div> -->
                 <n-h1 prefix="bar" class="mb-0" align-text type="info">
                     <n-text type="primary" class="text-black text-2xl font-semibold
-                dark:text-white" contenteditable @blur="setTitle">
-                        {{textTitle}}
+                dark:text-white">
+                        目录管理
                     </n-text>
                 </n-h1>
                 <div class="ml-auto flex gap-2">
-                    <n-button type="primary" size="large" class="text-black dark:text-white" @click="beforeSaveArticle">
-                        保存
+                    <n-button type="primary" size="large" class="text-black dark:text-white" @click="newPost">新建目录
                     </n-button>
-                    <n-dropdown :options="dropdownOptions" placement="bottom-start" trigger="click">
-                        <n-button type="primary" size="large" class="text-black dark:text-white">
-                            操作</n-button>
-                    </n-dropdown>
-                    <n-button @click="testModify"></n-button>
+                    <n-button type="default" size="large" class="text-black dark:text-white" @click="expandFn">
+                        {{expandSearch?'收起':'展开'}}</n-button>
                 </div>
             </div>
-            <MdEditor :textValue="textValue" @setMdText="setMdText"></MdEditor>
-        </template>
+            <!-- 展开折叠动画的一个小方案 -->
+            <div class="overflow-hidden opacity-100 transition-all h-full p-5"
+                :class="{'opacity-0 h-0 p-0':!expandSearch}">
+                <div class="grid grid-cols-8 items-center mb-2 xs:gap-2">
+                    <div class="xs:col-span-1 md:col-span-1 flex items-center ml-auto min-w-max pr-4 gap-2">
+                        <n-icon size="20" class="dark:text-white">
+                            <BookOpenIcon />
+                        </n-icon>
+                        <div class="text-lg dark:text-white">目录</div>
+                    </div>
+                    <div class="xs:col-span-7 md:col-span-auto ml-8">
+                        <n-input type="text" placeholder="请输入内容" v-model:value="formValue.searchText" clearable />
+                    </div>
+                    <div class="flex gap-2 md:col-span-auto">
+                        <n-button type="primary" class="text-black dark:text-white" @click="doSearch">
+                            <template #icon>
+                                <MagnifyingGlassIcon />
+                            </template>
+                            查询
+                        </n-button>
+                        <n-button type="default" class="text-black dark:text-white" @click="resetForm">
+                            <template #icon>
+                                <ArrowPathIcon />
+                            </template>
+                            重置
+                        </n-button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- 这个组件带了分页器，需要设置row-key 异步的时候需要设置remote -->
+        <n-data-table class="mb-2" :min-height="300" :max-height="calHeightTable" striped :columns="columns"
+            :data="categoryData" size="large" :row-key="rowKey" :loading="loading" remote />
+        <div class="ml-auto w-max">
+            <n-pagination v-model:page="paginationReactive.page" v-model:page-size="paginationReactive.pageSize"
+                :page-count="paginationReactive.pageCount" :show-size-picker="activePagin"
+                :page-sizes="[10, 20, 30, 40]" :on-update:page="paginationReactive.onChange"
+                :on-update:page-size="paginationReactive.onUpdatePageSize" size="large" />
+        </div>
     </div>
 </template>
 
