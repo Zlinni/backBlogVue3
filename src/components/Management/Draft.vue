@@ -663,7 +663,6 @@ const saveData = async (formValue: any) => {
             window.$message.success('修改成功')
             editor._id = '';
         } catch (error: any) {
-            console.log(error);
             window.$message.warning(error.response?.data.msg) || window.$message.warning(error)
         }
     }

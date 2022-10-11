@@ -9,10 +9,9 @@
                     </n-text>
                 </n-h1>
                 <div class="ml-auto flex gap-2">
-                    <n-button type="primary" size="large" class="text-black dark:text-white" @click="newPost">新建目录
+                    <n-button type="primary" size="large" class="text-black dark:text-white"
+                        @click="newCategory('add')">新建目录
                     </n-button>
-                    <n-button type="default" size="large" class="text-black dark:text-white" @click="expandFn">
-                        {{expandSearch?'收起':'展开'}}</n-button>
                 </div>
             </div>
             <!-- 展开折叠动画的一个小方案 -->
@@ -65,13 +64,11 @@ import { storeToRefs } from 'pinia';
 import { reactive, h, ref, computed, ComputedRef, onMounted } from 'vue';
 import ArticleDelete from '../Management/Article/Delete.vue'
 import { addPost, deletePost, getTags, modifyPost, outputPost, readPost } from '../../api/article';
-import { getCategories, GetCategoriesParams } from '../../api/categories';
+import { addCategories, AddCategoriesParams, deleteCategories, DeleteCategoriesParams, getCategories, GetCategoriesParams, modifyCategories, ModifyCategoriesParams } from '../../api/categories';
 import { useResize } from '../../store/useResize';
 // TODO 好像太大了
-import { parse, stringify } from 'yaml';
 import dayjs from 'dayjs';
-import SaveMenuVue from './Article/SaveMenu.vue';
-import UploadVue from './Article/Upload.vue';
+import SaveCategoryVue from './Category/SaveCategory.vue';
 const testModify = () => {
     console.log(editor.isModify);
 }
@@ -176,20 +173,8 @@ const columns: DataTableColumns<Category.Category> =
                             class: "mr-2",
                             quaternary: true,
                             onClick: async () => {
-                                const _id = row._id
-                                if (typeof _id === 'string') {
-                                    try {
-                                        loading.value = true;
-                                        const { data } = await readPost({ _id })
-                                        textValue.value = data.postMd;
-                                        textTitle.value = data.data.title;
-                                        loading.value = false;
-                                        editor.isModify = true;
-                                        editor._id = _id;
-                                    } catch (error: any) {
-                                        window.$message.warning(error.response.data.msg)
-                                    }
-                                }
+                                const {name,color,_id} = row;
+                                newCategory('modify',{name,color,_id})
                             }
                         },
                         { default: () => '修改' }
@@ -197,8 +182,9 @@ const columns: DataTableColumns<Category.Category> =
                     h(
                         ArticleDelete, {
                         onDelete() {
-                            deletePostFn(row._id)
-                        }
+                            deleteData({ _id: row._id })
+                        },
+                        infoMsg: '确认删除当前目录?'
                     }
                     ),
                 ]
@@ -264,11 +250,6 @@ const resetForm = () => {
     }
     doSearch()
 }
-// // 回到文章管理
-// const goBack = (): void => {
-//     editor.isAdd = false
-//     editor.isModify = false
-// }
 const apiGetCategory = async () => {
     try {
         loading.value = true;
@@ -295,274 +276,66 @@ const doSearch = (): void => {
     paginationReactive.pageSize = 10
     apiGetCategory()
 }
-interface Options {
-    label?: string,
-    value?: string,
-    disabled?: boolean
-}
-let categoryOptions = ref<Options[]>([]);
-let tagOptions = ref<Options[]>([]);
-// 控制展开收缩的function
-const expandFn = async () => {
-    // TODO 考虑是否需要返回data.data 
-    expandSearch.value = !expandSearch.value;
-    // TODO 直接在后续目录做好之后修改设置缓存是否过期
-    // 做个缓存优化 但是问题也是有的 如果资源发生了改变local通知不到
-    if (localStorage.getItem('categoryOptionsData') && localStorage.getItem('tagOptionsData')) {
-        categoryOptions.value = JSON.parse(localStorage.getItem('categoryOptionsData') as string)
-        tagOptions.value = JSON.parse(localStorage.getItem('tagOptionsData') as string)
-    } else {
-        try {
-            let { data: categoryOptionsData } = await getCategories()
-            categoryOptions.value = categoryOptionsData.data.map((item) => {
-                return {
-                    label: item.name,
-                    value: item.name,
-                    disabled: false
-                }
-            })
-            localStorage.setItem('categoryOptionsData', JSON.stringify(categoryOptions.value))
-            let { data: tagOptionsData } = await getTags()
-            tagOptions.value = tagOptionsData.data.map((item) => {
-                return {
-                    label: item.name,
-                    value: item.name,
-                    disabled: false
-                }
-            })
-            localStorage.setItem('tagOptionsData', JSON.stringify(tagOptions.value))
-        } catch (error: any) {
-            window.$message.warning(error.response.data.msg)
-        }
-    }
-}
-// 设置mdeditor的value 方法是暴露出去的
-const setMdText = (val: any): void => {
-    textValue.value = val;
-}
-//添加新文章
-const newPost = (): void => {
-    //重置id
-    editor._id = '';
-    //打开编辑器 打开状态栏
-    textTitle.value = '请输入文章标题';
-    textValue.value = `---
-title: ${textTitle.value}
-tags:
-  - 面试
-  - 前端
-categories:
-  - CSS系列
-cover: ./img/css系列/flex布局.jpg
-abbrlink: 1131280526
-date: ${dayjs().format('YYYY-MM-DD HH:mm:ss')}
----`;
-    editor.isAdd = true;
-};
-//导入文章
-const importPost = () => {
-    // 导入是解析文本 相当于上传了一个文章
-    // TODO
+//添加目录
+const newCategory = (commitType: string, modifyFormValue?: ModifyCategoriesParams): void => {
     dialog.info({
-        title: '导入文章',
+        title: '添加目录',
         content: () => {
             return [
-                h(UploadVue)
+                h(SaveCategoryVue, {
+                    onSaveData(formValue: AddCategoriesParams) {
+                        if (commitType === 'modify' && modifyFormValue) {
+                            modifyData(formValue as ModifyCategoriesParams)
+                        } else {
+                            saveData(formValue)
+                        }
+                    },
+                    ...modifyFormValue
+                })
             ]
         },
         positiveText: '关闭',
         onPositiveClick: () => {
-            // goBack();
             doSearch()
         }
     })
 };
-
-//设置文章标题(最顶层) ts技巧
-const setTitle = (e: Event) => {
-    textTitle.value = (e.target as EventTarget)?.innerText;
-}
-//yaml转化正则
-const yamlReg = /^(---)([\s\S]+?)(\1)$/gm;
-//保存文章之前做的事情
-const beforeSaveArticle = async () => {
-    try {
-        // TODO loading
-        // setting是正则匹配了---之间的内容
-        // setting需要用yaml转换为我们需要的对象数组
-        const yamlText = yamlReg.exec(textValue.value)?.[2] || ''
-        const setting = parse(yamlText)
-        // 设置对话框
-        dialog.info({
-            title: '偏好设置',
-            content: () => {
-                return [
-                    h(SaveMenuVue, {
-                        async onSaveData(formValue: any) {
-                            saveData(formValue)
-                        },
-                        // props数据
-                        ...setting
-                    })
-                ]
-            },
-            positiveText: '关闭',
-            onPositiveClick: () => {
-                doSearch()
-            }
-        })
-    } catch (error: any) {
-        window.$message.warning(error.response.data.msg) || window.$message.warning(error)
-    }
-}
-//删除文章
-const deletePostFn = async (_id: string) => {
+//保存data 抽出来先后面说不定有用到
+const saveData = async (formValue: AddCategoriesParams) => {
     try {
         loading.value = true;
-        await deletePost({
-            _id
-        })
+        await addCategories(formValue);
         loading.value = false;
-        window.$message.success('删除成功')
+        window.$message.success('添加成功')
         doSearch()
-    } catch (error: any) {
-        window.$message.warning(error.response.data.msg)
-    }
-}
-// 导出文章
-const outputPostFn = async (_id: string) => {
-    if (typeof _id === 'string') {
-        try {
-            loading.value = true;
-            // 写个踩坑记录好了
-            // 获取到后端给来的数据 这里axios封装会踩坑
-            const res = await outputPost({ _id })
-            // 设置blobType
-            const blobType = 'application/force-download'
-            // 新建blob对象传入转换的数据
-            const blobs = new Blob([res.data], { type: blobType })
-            // 新建a标签
-            const archor = document.createElement('a');
-            // 创建a链接
-            const href = window.URL.createObjectURL(blobs)
-            // 解析content-disposition头 获取其中的已经编码的文件名
-            const encodeFileName = res.headers['content-disposition'].replace(/[\s\S]+'([\s\S]+)/, (p0, p1) => p1);
-            // 把文件名解码
-            const fileName = decodeURIComponent(encodeFileName);
-            // 设置a标签的href
-            archor.setAttribute('href', href)
-            // 设置文件名
-            archor.setAttribute('download', fileName)//关键点4
-            // 触发
-            archor.click();
-            // 释放掉href
-            window.URL.revokeObjectURL(href);
-            loading.value = false;
-            window.$message.success('下载成功')
-        } catch (error: any) {
-            const errorMsg = error.response?.data?.msg ?? error
-            window.$message.warning(errorMsg)
-        }
-    }
-}
-//是否禁止下拉
-// let shouldShowDelete = computed<boolean>(() => {
-//     console.log(!editor.isModify,'--------')
-//     return !editor.isModify
-// })
-
-//操作下拉选项
-const dropdownOptions = reactive([
-    {
-        label: '重置',
-        key: 'reset',
-        props: {
-            onClick: () => {
-                textValue.value = '';
-            }
-        }
-    },
-    {
-        label: '导入文章',
-        key: 'output',
-        props: {
-            onClick: () => {
-                // dialog.info({
-
-                // })
-            }
-        }
-    },
-    {
-        label: '导出文章',
-        key: 'output',
-        props: {
-            // 两个方案
-            // 1. 直接导出当前文章，不保存到后台(√)
-            // 2. 先保存后调用导出功能，但这样就会先弹出保存提示框，然后再导出 
-            onClick: () => {
-                let link = document.createElement('a')
-                link.download = `${textTitle.value}.md`
-                link.href = 'data:text/plain,' + textValue.value
-                link.click()
-            }
-        }
-    },
-    {
-        label: '删除文章',
-        key: 'delete',
-        props: {
-            onClick: () => {
-                deletePostFn(editor._id);
-                doSearch();
-            },
-        },
-        // disabled: shouldShowDelete.value
-    }
-])
-//保存data 抽出来先后面说不定有用到
-const saveData = async (formValue: any) => {
-    const yamlForm = stringify(formValue);
-    // 正则替换掉---中间内容
-    textValue.value = textValue.value.replace(yamlReg, (p0, p1) => {
-        return p1 + '\n' + yamlForm + p1
-    })
-    // 设置顶层文章标题
-    textTitle.value = formValue.title;
-    // 添加文章
-    if (editor.isAdd) {
-        try {
-            loading.value = true;
-            await addPost({
-                textValue: textValue.value,
-                textTitle: formValue.title,
-                categories: formValue?.categories?.toString() ?? ''
-            })
-            loading.value = false;
-            window.$message.success('添加成功')
-        } catch (error: any) {
-            console.log(error);
-            window.$message.warning(error.response?.data.msg) || window.$message.warning(error)
-        }
-    } else {
-        // 修改文章
-        try {
-            loading.value = true;
-            await modifyPost({
-                _id: editor._id,
-                textValue: textValue.value,
-                textTitle: formValue.title,
-                categories: formValue?.categories?.toString() ?? ''
-            })
-            loading.value = false;
-            window.$message.success('修改成功')
-            editor._id = '';
-        } catch (error: any) {
-            console.log(error);
-            window.$message.warning(error.response?.data.msg) || window.$message.warning(error)
-        }
+    } catch (error) {
+        window.$message.warning('添加失败')
     }
 };
+// 修改目录
+const modifyData = async (formValue: ModifyCategoriesParams) => {
+    try {
+        loading.value = true;
+        await modifyCategories(formValue);
+        loading.value = false;
+        window.$message.success('添加成功')
+        doSearch()
+    } catch (error) {
+        window.$message.warning('添加失败')
+    }
+}
+// 删除目录
+const deleteData = async (formValue: DeleteCategoriesParams) => {
+    try {
+        loading.value = true;
+        await deleteCategories(formValue);
+        loading.value = false;
+        window.$message.success('添加成功')
+        doSearch()
+    } catch (error) {
+        window.$message.warning('添加失败')
+    }
+}
 </script>
 
 <style scoped>

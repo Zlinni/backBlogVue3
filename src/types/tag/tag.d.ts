@@ -2,7 +2,7 @@ declare namespace Tag {
   interface Tag {
     _id: string;
     name: string;
-    color?: string;
+    color: string;
     count?: number;
     createTime?: string;
   }

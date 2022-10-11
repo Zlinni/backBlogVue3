@@ -4,7 +4,7 @@
             <n-button quaternary size="small" @click="showPopover = true">删除</n-button>
         </template>
         <div class="flex flex-col w-30 gap-y-3">
-            <span>确认删除当前文章？</span>
+            <span>{{props.infoMsg}}</span>
             <div class="ml-auto">
                 <n-button type="error" strong secondary size="small" @click="deletePostBtn"> 确认 </n-button>
             </div>
@@ -23,4 +23,10 @@ const deletePostBtn = async () => {
     emit('delete');
     showPopover.value = false
 }
+interface Props {
+    infoMsg?:string
+}
+const props = withDefaults(defineProps<Props>(),{
+    infoMsg:'确认删除？？'
+})
 </script>

@@ -6,6 +6,7 @@ export interface GetListParams {
   page?: number;
   pageSize?: number;
   title?: string;
+  date?: string
 }
 //获取文章总览的接口
 export function getPost(params: GetListParams): AxiosPromise<Post.GetListRes> {
